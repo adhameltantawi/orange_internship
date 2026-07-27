@@ -133,14 +133,6 @@ Select **Kernel > Restart & Run All** in Jupyter to execute the pipeline end-to-
 
 ---
 
-## 📜 Code Governance & Quality Standards
-
-- **Naming Standards:** Directories (`0X_description`), Datasets (`snake_case.csv`), Notebooks (`domain_eda.ipynb`), Variables (`snake_case`).
-- **Reproducibility:** Self-contained file loading logic supporting local execution, Google Colab, and Kaggle environments.
-- **Narrative Structure:** Every code block is preceded by markdown context explaining the analytical objective and expected outcome.
-
----
-
 ## 👨‍💻 Author & Acknowledgments
 
 - **Role:** Senior Data Analyst Intern
