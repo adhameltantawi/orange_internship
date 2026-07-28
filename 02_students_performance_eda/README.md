@@ -1,6 +1,7 @@
-# 📊 From Fails to A's — Student Performance Analytics
+# 📊 From Fails to A's — Student Performance Analytics & Web Dashboard
 
 [![Kaggle](https://img.shields.io/badge/View%20on-Kaggle-20BEFF?logo=kaggle&logoColor=white)](https://www.kaggle.com/code/adhameltantawi/students-performance-eda-clean-structured-anal)
+[![Web Dashboard](https://img.shields.io/badge/Interactive-Web%20Dashboard-00CC96?logo=html5&logoColor=white)](#-interactive-web-dashboard)
 
 > 🔗 **Kaggle Notebook:** [students-performance-eda-clean-structured-anal](https://www.kaggle.com/code/adhameltantawi/students-performance-eda-clean-structured-anal)
 
@@ -8,18 +9,37 @@
 
 ## Overview
 
-This project performs a structured **Exploratory Data Analysis (EDA)** on the *Students Performance in Exams* dataset. The analysis follows a six-phase pipeline — **Setup → Data Cleaning → Feature Engineering → EDA → Insights → Recommendations** — producing a clean, well-documented notebook with 10 targeted questions answered with evidence.
+This project performs a structured **Exploratory Data Analysis (EDA)** on the *Students Performance in Exams* dataset alongside an **Interactive Web Dashboard**. The analysis follows a six-phase pipeline — **Setup → Data Cleaning → Feature Engineering → EDA → Insights → Recommendations** — producing a clean, well-documented notebook and an interactive visual dashboard with 10 targeted business questions answered with empirical evidence.
 
 ---
 
 ## Table of Contents
 
-1. [Project Structure](#project-structure)
-2. [Dataset Description](#dataset-description)
-3. [Analysis Pipeline](#analysis-pipeline)
-4. [Key Findings](#key-findings)
-5. [Technologies](#technologies)
-6. [Getting Started](#getting-started)
+1. [Interactive Web Dashboard](#-interactive-web-dashboard)
+2. [Project Structure](#project-structure)
+3. [Dataset Description](#dataset-description)
+4. [Analysis Pipeline](#analysis-pipeline)
+5. [Key Findings](#key-findings)
+6. [Technologies](#technologies)
+7. [Getting Started](#getting-started)
+
+---
+
+## 💻 Interactive Web Dashboard
+
+A responsive, dark-glassmorphism Web Dashboard (`index.html`) is included in the project for real-time exploratory analytics.
+
+### Key Dashboard Features:
+- 🎛️ **Multi-Dimensional Filters**: Filter dataset instantly by Gender, Ethnicity, Parental Education, Lunch Program, Test Prep, or Pass/Fail status.
+- 📈 **Dynamic KPI Summary Cards**: Live recalculations of Total Students, Pass Rate, Average Overall Percentage, and Subject Means (Math, Reading, Writing).
+- 📊 **6 Interactive Chart.js Visualizations**:
+  - Grade Distribution (Doughnut Chart)
+  - Subject Performance by Gender (Grouped Bar Chart)
+  - Impact of Parental Education Level (Line Area Chart)
+  - Lunch x Test Prep Interaction Matrix (Grouped Bar Chart)
+  - Scores by Race / Ethnicity (Grouped Bar Chart)
+  - Score Range Distribution Breakdown
+- 📋 **Student Data Explorer Table**: Full interactive table with search capability, multi-column sorting, pagination, and grade/result badges.
 
 ---
 
@@ -27,8 +47,12 @@ This project performs a structured **Exploratory Data Analysis (EDA)** on the *S
 
 ```
 02_students_performance_eda/
+├── index.html                      # Interactive Web Dashboard UI
+├── styles.css                      # Custom Dark Glassmorphism CSS Stylesheet
+├── app.js                          # Dashboard logic, state management & Chart.js rendering
+├── data.js                         # Exported JSON dataset for client-side execution
 ├── students_performance.csv        # Raw dataset (1,000 student records, 8 columns)
-├── students_performance_eda.ipynb  # Main analysis notebook
+├── students_performance_eda.ipynb  # Main Python analysis notebook
 └── README.md                       # Project documentation (this file)
 ```
 
@@ -140,34 +164,40 @@ The notebook follows a systematic, section-by-section workflow. Every code block
 
 ## Technologies
 
-| Library | Purpose |
+| Library / Tech | Purpose |
 |---|---|
-| Python 3.x | Core language |
-| pandas | Data manipulation and analysis |
-| numpy | Numerical computation |
-| plotly | Interactive charts (histograms, bar, pie, scatter, heatmap, sunburst) |
+| Python 3.x | Core data analysis language |
+| pandas & numpy | Data manipulation & feature engineering |
+| plotly | Interactive Python visualization charts |
+| HTML5 & Vanilla CSS3 | Modern dark glassmorphism Web Dashboard structure & design |
+| Vanilla JavaScript (ES6) | Reactive filtering, table pagination & search |
+| Chart.js (CDN) | Responsive, high-performance web dashboard charts |
 
 ---
 
 ## Getting Started
 
-### Prerequisites
+### 1. View the Web Dashboard
+Simply open [index.html](file:///e:/data/orange_internship/02_students_performance_eda/index.html) in any browser, or serve it locally:
+
+```bash
+# Option A: Double-click index.html or open via browser
+
+# Option B: Run Python HTTP Server
+python -m http.server 8000
+```
+Then visit `http://localhost:8000` in your web browser.
+
+### 2. Run the Jupyter Notebook Locally
 
 ```bash
 pip install pandas numpy plotly
-```
-
-### Run Locally
-
-```bash
 jupyter notebook students_performance_eda.ipynb
 ```
 
-Then select **Kernel > Restart & Run All** to execute the full pipeline.
+Select **Kernel > Restart & Run All** to execute the full data analysis pipeline.
 
-### Run on Kaggle
-
-Click the badge below to open the notebook directly on Kaggle:
+### 3. Open on Kaggle
 
 [![Kaggle](https://img.shields.io/badge/Open%20in-Kaggle-20BEFF?logo=kaggle&logoColor=white)](https://www.kaggle.com/code/adhameltantawi/students-performance-eda-clean-structured-anal)
 
@@ -175,7 +205,6 @@ Click the badge below to open the notebook directly on Kaggle:
 
 ## Notes
 
-- The notebook uses **helper functions** (`plot_bar`, `plot_pie`, `compare_groups`, etc.) to keep code DRY and modular.
-- All visualisations use `plotly.express` with a **dark theme** (`plotly_dark`) for clean, interactive charts.
-- **Zero scores are preserved intentionally** — removing them would hide the students who need the most educational support.
-- The final cleaned dataset is ready for downstream tasks such as dashboarding, predictive modelling, or reporting.
+- The Web Dashboard is completely self-contained and zero-dependency (uses embedded dataset and CDN libraries).
+- All visualisations use a consistent **dark theme** palette for seamless user experience.
+- The project code and Web Dashboard follow modular, production-ready coding standards.

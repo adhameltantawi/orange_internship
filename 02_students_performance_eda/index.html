@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Performance Analytics — Interactive Dashboard</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <!-- Top Header -->
+    <header class="dashboard-header">
+      <div class="header-title-group">
+        <h1><i class="fa-solid fa-graduation-cap" style="color: var(--accent-blue);"></i> Student Performance Analytics</h1>
+        <p>Interactive Exploratory Data Analysis & Predictive Insights Dashboard</p>
+      </div>
+      <div class="header-actions">
+        <a href="https://www.kaggle.com/code/adhameltantawi/students-performance-eda-clean-structured-anal" target="_blank" class="btn">
+          <i class="fa-brands fa-kaggle"></i> View Kaggle Notebook
+        </a>
+        <button id="reset-filters-btn" class="btn btn-secondary">
+          <i class="fa-solid fa-rotate-left"></i> Reset Filters
+        </button>
+      </div>
+    </header>
+
+    <!-- Filters Control Panel -->
+    <section class="glass-panel filters-panel">
+      <div class="filter-group">
+        <label for="filter-gender"><i class="fa-solid fa-venus-mars"></i> Gender</label>
+        <select id="filter-gender" class="filter-select">
+          <option value="all">All Genders</option>
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-ethnicity"><i class="fa-solid fa-users"></i> Race / Ethnicity</label>
+        <select id="filter-ethnicity" class="filter-select">
+          <option value="all">All Groups</option>
+          <option value="group A">Group A</option>
+          <option value="group B">Group B</option>
+          <option value="group C">Group C</option>
+          <option value="group D">Group D</option>
+          <option value="group E">Group E</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-education"><i class="fa-solid fa-user-graduate"></i> Parental Education</label>
+        <select id="filter-education" class="filter-select">
+          <option value="all">All Education Levels</option>
+          <option value="some high school">Some High School</option>
+          <option value="high school">High School</option>
+          <option value="some college">Some College</option>
+          <option value="associate's degree">Associate's Degree</option>
+          <option value="bachelor's degree">Bachelor's Degree</option>
+          <option value="master's degree">Master's Degree</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-lunch"><i class="fa-solid fa-utensils"></i> Lunch Program</label>
+        <select id="filter-lunch" class="filter-select">
+          <option value="all">All Lunch Types</option>
+          <option value="standard">Standard</option>
+          <option value="free/reduced">Free / Reduced</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-prep"><i class="fa-solid fa-book-open"></i> Test Preparation</label>
+        <select id="filter-prep" class="filter-select">
+          <option value="all">All Statuses</option>
+          <option value="completed">Completed</option>
+          <option value="none">None</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="filter-result"><i class="fa-solid fa-award"></i> Result</label>
+        <select id="filter-result" class="filter-select">
+          <option value="all">All Results</option>
+          <option value="Pass">Pass (≥ 50%)</option>
+          <option value="Fail">Fail (< 50%)</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Key Metrics Cards -->
+    <section class="metrics-grid">
+      <div class="glass-panel metric-card blue">
+        <div class="metric-header">
+          <span>Total Students</span>
+          <i class="fa-solid fa-user-group"></i>
+        </div>
+        <div class="metric-value" id="kpi-total-students">1,000</div>
+        <div class="metric-sub" id="kpi-total-sub">100% of dataset</div>
+      </div>
+
+      <div class="glass-panel metric-card teal">
+        <div class="metric-header">
+          <span>Pass Rate</span>
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <div class="metric-value" id="kpi-pass-rate">86.5%</div>
+        <div class="metric-sub" id="kpi-pass-count">865 passed</div>
+      </div>
+
+      <div class="glass-panel metric-card purple">
+        <div class="metric-header">
+          <span>Avg Percentage</span>
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <div class="metric-value" id="kpi-avg-percentage">67.7%</div>
+        <div class="metric-sub">Across all 3 subjects</div>
+      </div>
+
+      <div class="glass-panel metric-card coral">
+        <div class="metric-header">
+          <span>Avg Math Score</span>
+          <i class="fa-solid fa-calculator"></i>
+        </div>
+        <div class="metric-value" id="kpi-avg-math">66.1</div>
+        <div class="metric-sub">Max: 100 | Min: 0</div>
+      </div>
+
+      <div class="glass-panel metric-card orange">
+        <div class="metric-header">
+          <span>Avg Reading Score</span>
+          <i class="fa-solid fa-book-reader"></i>
+        </div>
+        <div class="metric-value" id="kpi-avg-reading">69.2</div>
+        <div class="metric-sub">Max: 100 | Min: 17</div>
+      </div>
+
+      <div class="glass-panel metric-card blue">
+        <div class="metric-header">
+          <span>Avg Writing Score</span>
+          <i class="fa-solid fa-pen-nib"></i>
+        </div>
+        <div class="metric-value" id="kpi-avg-writing">68.1</div>
+        <div class="metric-sub">Max: 100 | Min: 10</div>
+      </div>
+    </section>
+
+    <!-- Visualizations Grid -->
+    <section class="charts-grid">
+      
+      <!-- Chart 1: Grade Distribution -->
+      <div class="glass-panel chart-card col-4">
+        <div class="chart-header">
+          <h3><i class="fa-solid fa-pie-chart" style="color: var(--accent-purple);"></i> Grade Distribution</h3>
+        </div>
+        <div class="chart-body">
+          <canvas id="chart-grades"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Subject Performance by Gender -->
+      <div class="glass-panel chart-card col-8">
+        <div class="chart-header">
+          <h3><i class="fa-solid fa-chart-bar" style="color: var(--accent-blue);"></i> Subject Performance by Gender</h3>
+        </div>
+        <div class="chart-body">
+          <canvas id="chart-gender-subject"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 3: Impact of Parental Education -->
+      <div class="glass-panel chart-card col-6">
+        <div class="chart-header">
+          <h3><i class="fa-solid fa-graduation-cap" style="color: var(--accent-teal);"></i> Parental Education Trend</h3>
+        </div>
+        <div class="chart-body">
+          <canvas id="chart-education"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 4: Lunch x Test Prep Matrix -->
+      <div class="glass-panel chart-card col-6">
+        <div class="chart-header">
+          <h3><i class="fa-solid fa-layer-group" style="color: var(--accent-orange);"></i> Lunch x Test Prep Interaction</h3>
+        </div>
+        <div class="chart-body">
+          <canvas id="chart-lunch-prep"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 5: Performance by Race/Ethnicity -->
+      <div class="glass-panel chart-card col-6">
+        <div class="chart-header">
+          <h3><i class="fa-solid fa-users" style="color: var(--accent-pink);"></i> Scores by Race / Ethnicity</h3>
+        </div>
+        <div class="chart-body">
+          <canvas id="chart-ethnicity"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 6: Reading vs Writing Correlation -->
+      <div class="glass-panel chart-card col-6">
+        <div class="chart-header">
+          <h3><i class="fa-solid fa-diagram-project" style="color: var(--accent-blue);"></i> Score Distribution Overview</h3>
+        </div>
+        <div class="chart-body">
+          <canvas id="chart-scores-dist"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Data Table Section -->
+    <section class="glass-panel">
+      <div class="table-header-bar">
+        <h3><i class="fa-solid fa-table-list" style="color: var(--accent-teal);"></i> Student Data Explorer</h3>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <input type="text" id="table-search" class="search-input" placeholder="Search by ethnicity, education, grade..." style="width: 260px;">
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th data-sort="gender">Gender <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="race_ethnicity">Race / Ethnicity <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="parental_level_of_education">Parental Education <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="lunch">Lunch <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="test_preparation_course">Test Prep <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="math_score">Math <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="reading_score">Reading <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="writing_score">Writing <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="percentage">Percentage <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="grade">Grade <i class="fa-solid fa-sort"></i></th>
+              <th data-sort="result">Result <i class="fa-solid fa-sort"></i></th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Dynamically populated via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-controls">
+        <div id="table-info">Showing 1 to 10 of 1,000 entries</div>
+        <div class="page-btn-group">
+          <button id="prev-page-btn" class="page-btn"><i class="fa-solid fa-chevron-left"></i> Previous</button>
+          <span id="page-num-display" style="padding: 0.4rem 0.75rem;">Page 1</span>
+          <button id="next-page-btn" class="page-btn">Next <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>Student Performance Analytics Dashboard &copy; 2026 | Built for Orange Internship EDA Project</p>
+    </footer>
+
+  </div>
+
+  <!-- Data Script -->
+  <script src="data.js"></script>
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
