@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Superstore Analytics Dashboard</title>
+<meta name="description" content="Interactive sales and profitability analytics dashboard for the Superstore dataset — KPIs, trends, category breakdowns, and discount analysis."/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+  /* ── Tokens ── */
+  :root{
+    --bg:#0D1117; --surface:#161B22; --surface2:#21262D;
+    --border:#30363D; --text:#E6EDF3; --muted:#8B949E;
+    --accent:#58A6FF; --accent2:#3FB950; --warn:#F78166;
+    --gold:#E3B341; --purple:#BC8CFF; --pink:#FF7B72;
+    --radius:10px; --shadow:0 4px 24px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+  /* ── Header ── */
+  header{
+    background:linear-gradient(135deg,#1a237e 0%,#0D47A1 40%,#006064 100%);
+    padding:28px 32px 22px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:16px;
+  }
+  header .logo{font-size:28px}
+  header h1{font-size:1.55rem;font-weight:700;letter-spacing:-.4px}
+  header p{font-size:.82rem;color:#90CAF9;margin-top:3px}
+
+  /* ── Layout ── */
+  .wrapper{max-width:1440px;margin:0 auto;padding:24px 24px 40px}
+
+  /* ── Filters ── */
+  .filters{
+    display:flex;flex-wrap:wrap;gap:12px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:16px 20px;margin-bottom:24px;
+    align-items:flex-end;
+  }
+  .filter-group{display:flex;flex-direction:column;gap:5px;min-width:140px}
+  .filter-group label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+  select{
+    background:var(--surface2);border:1px solid var(--border);color:var(--text);
+    border-radius:6px;padding:7px 10px;font-size:.85rem;cursor:pointer;
+    transition:border-color .2s;
+  }
+  select:hover,select:focus{border-color:var(--accent);outline:none}
+  .filter-badge{
+    background:linear-gradient(135deg,var(--accent),#3FB950);
+    border:none;color:#000;font-weight:700;font-size:.8rem;
+    border-radius:6px;padding:8px 18px;cursor:pointer;
+    transition:opacity .2s,transform .15s;align-self:flex-end;height:34px;
+  }
+  .filter-badge:hover{opacity:.85;transform:translateY(-1px)}
+
+  /* ── KPI Cards ── */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+  .kpi{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:18px 20px;
+    position:relative;overflow:hidden;transition:transform .2s,border-color .2s;
+  }
+  .kpi:hover{transform:translateY(-3px);border-color:var(--accent)}
+  .kpi::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    background:var(--kpi-color,var(--accent));
+  }
+  .kpi-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.9px;margin-bottom:8px}
+  .kpi-value{font-size:1.6rem;font-weight:800;line-height:1;color:var(--kpi-color,var(--text))}
+  .kpi-sub{font-size:.72rem;color:var(--muted);margin-top:5px}
+
+  /* ── Chart Grid ── */
+  .chart-grid{display:grid;gap:18px;}
+  .row-2{grid-template-columns:1fr 1fr}
+  .row-3{grid-template-columns:2fr 1fr}
+  .row-full{grid-template-columns:1fr}
+
+  .card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);
+    transition:border-color .2s;
+  }
+  .card:hover{border-color:var(--border)}
+  .card-title{
+    font-size:.8rem;font-weight:600;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.9px;margin-bottom:16px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .card-title span{font-size:14px}
+  .chart-wrap{position:relative;width:100%}
+  .chart-wrap canvas{width:100%!important}
+
+  /* ── Scatter Legend ── */
+  .scatter-note{font-size:.72rem;color:var(--muted);text-align:center;margin-top:8px}
+
+  /* ── Heatmap ── */
+  #heatmapWrap{overflow-x:auto}
+  #heatmapTable{width:100%;border-collapse:collapse;font-size:.82rem}
+  #heatmapTable th,#heatmapTable td{padding:10px 14px;text-align:center;border:1px solid var(--border)}
+  #heatmapTable th{background:var(--surface2);color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.7px}
+  #heatmapTable td{font-weight:700;border-radius:4px;transition:background .3s}
+
+  /* ── Return KPI pill ── */
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.72rem;font-weight:700}
+  .pill-warn{background:#3d1f1f;color:var(--warn)}
+  .pill-ok{background:#1a2f1a;color:var(--accent2)}
+
+  /* ── Footer ── */
+  footer{text-align:center;padding:20px;color:var(--muted);font-size:.75rem;border-top:1px solid var(--border);margin-top:32px}
+
+  @media(max-width:900px){.row-2,.row-3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">📊</div>
+  <div>
+    <h1>Superstore Analytics Dashboard</h1>
+    <p>10,194 transactions · 2023 – 2026 · United States & Canada</p>
+  </div>
+</header>
+
+<div class="wrapper">
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
+      <label>Year</label>
+      <select id="fYear"><option value="All">All Years</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Region</label>
+      <select id="fRegion"><option value="All">All Regions</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Category</label>
+      <select id="fCategory"><option value="All">All Categories</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Segment</label>
+      <select id="fSegment"><option value="All">All Segments</option></select>
+    </div>
+    <button class="filter-badge" onclick="resetFilters()">Reset</button>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi" style="--kpi-color:#58A6FF">
+      <div class="kpi-label">Total Sales</div>
+      <div class="kpi-value" id="kSales">—</div>
+      <div class="kpi-sub" id="kSalesSub">—</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#3FB950">
+      <div class="kpi-label">Total Profit</div>
+      <div class="kpi-value" id="kProfit">—</div>
+      <div class="kpi-sub" id="kProfitSub">—</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#E3B341">
+      <div class="kpi-label">Profit Margin</div>
+      <div class="kpi-value" id="kMargin">—</div>
+      <div class="kpi-sub">Overall blended margin</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#BC8CFF">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-value" id="kOrders">—</div>
+      <div class="kpi-sub" id="kOrdersSub">—</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#FF7B72">
+      <div class="kpi-label">Avg Order Value</div>
+      <div class="kpi-value" id="kAOV">—</div>
+      <div class="kpi-sub">Per unique order</div>
+    </div>
+    <div class="kpi" style="--kpi-color:#26D0CE">
+      <div class="kpi-label">Returned Orders</div>
+      <div class="kpi-value" id="kReturns">—</div>
+      <div class="kpi-sub" id="kReturnSub">—</div>
+    </div>
+  </div>
+
+  <!-- Row 1: Trend (full width) -->
+  <div class="chart-grid row-full" style="margin-bottom:18px">
+    <div class="card">
+      <div class="card-title"><span>📈</span> Sales & Profit Trend</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="chartTrend"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Row 2: Category bar + Sub-Category bar -->
+  <div class="chart-grid row-2" style="margin-bottom:18px">
+    <div class="card">
+      <div class="card-title"><span>🏷️</span> Sales & Profit by Category</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="chartCat"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>📦</span> Top 10 Sub-Categories by Sales</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="chartSubcat"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Row 3: Region/Segment heatmap + Top 10 Products -->
+  <div class="chart-grid row-2" style="margin-bottom:18px">
+    <div class="card">
+      <div class="card-title"><span>🗺️</span> Profit Margin — Region × Segment</div>
+      <div id="heatmapWrap"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>🥇</span> Top 10 Products by Sales</div>
+      <div class="chart-wrap" style="height:300px"><canvas id="chartTop10"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Row 4: Discount scatter + Ship mode -->
+  <div class="chart-grid row-2" style="margin-bottom:18px">
+    <div class="card">
+      <div class="card-title"><span>💸</span> Discount vs Profit Margin</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="chartScatter"></canvas></div>
+      <div class="scatter-note">Each dot = 1 order (sample of 2,000). Red line = zero margin.</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>🚚</span> Sales & Profit by Ship Mode</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="chartShip"></canvas></div>
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<footer>Superstore Analytics · Built with Chart.js · Data: ODC_Excel_Task.xlsx</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA — loaded from data.json via fetch (same directory)
+// ═══════════════════════════════════════════════════════════════
+const COLORS = {
+  accent:'#58A6FF', green:'#3FB950', gold:'#E3B341',
+  purple:'#BC8CFF', pink:'#FF7B72', teal:'#26D0CE',
+  orange:'#F78166', indigo:'#818CF8', rose:'#FB7185',
+};
+const PALETTE = Object.values(COLORS);
+const GRID_COLOR = '#30363D';
+const AXIS_COLOR = '#8B949E';
+
+let RAW = null; // will hold data.json
+let charts = {};
+
+// Chart defaults
+Chart.defaults.color = AXIS_COLOR;
+Chart.defaults.borderColor = GRID_COLOR;
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+
+// ── Helpers ────────────────────────────────────────────────────
+const fmt = {
+  money: v => v >= 1e6 ? '$' + (v/1e6).toFixed(2)+'M'
+             : v >= 1e3 ? '$' + (v/1e3).toFixed(1)+'K'
+             : '$' + v.toFixed(0),
+  pct:   v => (v*100).toFixed(1) + '%',
+  num:   v => v.toLocaleString(),
+};
+
+function marginColor(m) {
+  if (m < 0)    return '#F78166';
+  if (m < 0.08) return '#E3B341';
+  return '#3FB950';
+}
+
+function gradientLine(ctx, colorStart, colorEnd){
+  const g = ctx.createLinearGradient(0,0,0,300);
+  g.addColorStop(0, colorStart+'66');
+  g.addColorStop(1, colorStart+'00');
+  return g;
+}
+
+// ── Filters ────────────────────────────────────────────────────
+function getFilters(){
+  return {
+    year:     document.getElementById('fYear').value,
+    region:   document.getElementById('fRegion').value,
+    category: document.getElementById('fCategory').value,
+    segment:  document.getElementById('fSegment').value,
+  };
+}
+
+function resetFilters(){
+  ['fYear','fRegion','fCategory','fSegment'].forEach(id=>{
+    document.getElementById(id).value='All';
+  });
+  update();
+}
+
+function applyFilters(rows){
+  const f = getFilters();
+  return rows.filter(r=>{
+    if (f.year     !== 'All' && String(r.year)     !== f.year)     return false;
+    if (f.region   !== 'All' && r.region            !== f.region)   return false;
+    if (f.category !== 'All' && r.category          !== f.category) return false;
+    if (f.segment  !== 'All' && r.segment           !== f.segment)  return false;
+    return true;
+  });
+}
+
+// ── Aggregate helpers ──────────────────────────────────────────
+function aggregateMonthly(rows){
+  const m = {};
+  rows.forEach(r=>{
+    if(!m[r.month]) m[r.month]={sales:0,profit:0};
+    m[r.month].sales  += r.sales;
+    m[r.month].profit += r.profit;
+  });
+  const keys = Object.keys(m).sort();
+  return {
+    labels:  keys,
+    sales:   keys.map(k=>m[k].sales),
+    profit:  keys.map(k=>m[k].profit),
+  };
+}
+
+function aggregateGroup(rows, field){
+  const g = {};
+  rows.forEach(r=>{
+    const key = r[field];
+    if(!g[key]) g[key]={sales:0,profit:0};
+    g[key].sales  += r.sales;
+    g[key].profit += r.profit;
+  });
+  const entries = Object.entries(g).sort((a,b)=>b[1].sales-a[1].sales);
+  return {
+    labels: entries.map(e=>e[0]),
+    sales:  entries.map(e=>e[1].sales),
+    profit: entries.map(e=>e[1].profit),
+  };
+}
+
+// ── Chart factory helpers ──────────────────────────────────────
+function mkChart(id, type, data, options={}){
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(charts[id]) charts[id].destroy();
+  charts[id] = new Chart(el, {type, data,
+    options:{responsive:true, maintainAspectRatio:false, animation:{duration:400}, ...options}
+  });
+}
+
+function baseScales(xLabel='', yLabel=''){
+  return {
+    x:{grid:{color:GRID_COLOR},ticks:{color:AXIS_COLOR},title:{display:!!xLabel,text:xLabel,color:AXIS_COLOR}},
+    y:{grid:{color:GRID_COLOR},ticks:{color:AXIS_COLOR},title:{display:!!yLabel,text:yLabel,color:AXIS_COLOR}},
+  };
+}
+
+// ── KPIs ──────────────────────────────────────────────────────
+function updateKPIs(filtered, allRows){
+  const totalSales   = filtered.reduce((s,r)=>s+r.sales,0);
+  const totalProfit  = filtered.reduce((s,r)=>s+r.profit,0);
+  const totalOrders  = new Set(filtered.map(r=>r.month+'|'+r.year+'|'+r.region+r.category+r.segment)).size; // proxy
+  const margin       = totalSales ? totalProfit/totalSales : 0;
+  const aov          = totalOrders ? totalSales/totalOrders : 0;
+
+  // Returns: compare against full XLSX return flag (in scatter data)
+  const returnedOrders = RAW.scatter ? 0 : 0; // not tracked in filterable; use global
+  const globalSales  = allRows.reduce((s,r)=>s+r.sales,0);
+
+  document.getElementById('kSales').textContent   = fmt.money(totalSales);
+  document.getElementById('kSalesSub').textContent = totalSales!==globalSales
+    ? fmt.pct(totalSales/globalSales)+' of total' : 'All years/segments';
+
+  const profitColor = totalProfit >= 0 ? '#3FB950' : '#F78166';
+  const kP = document.getElementById('kProfit');
+  kP.textContent = fmt.money(Math.abs(totalProfit));
+  kP.style.color = profitColor;
+
+  document.getElementById('kProfitSub').textContent = totalProfit>=0 ? 'Profitable' : 'Net loss';
+  document.getElementById('kMargin').textContent    = fmt.pct(margin);
+  document.getElementById('kMargin').style.color    = marginColor(margin);
+  document.getElementById('kOrders').textContent    = fmt.num(filtered.length);
+  document.getElementById('kOrdersSub').textContent = 'Filtered row groups';
+  document.getElementById('kAOV').textContent       = fmt.money(aov);
+
+  // Returns from global data
+  const retCount  = RAW.returnsTotal || 0;
+  const retPct    = RAW.returnsPct   || 0;
+  document.getElementById('kReturns').textContent   = fmt.num(retCount);
+  document.getElementById('kReturnSub').innerHTML   =
+    `<span class="pill pill-warn">${retPct}% of orders</span>`;
+}
+
+// ── Chart: Trend ──────────────────────────────────────────────
+function drawTrend(filtered){
+  const d = aggregateMonthly(filtered);
+  const ctx = document.getElementById('chartTrend').getContext('2d');
+  const fillBlue = gradientLine(ctx, COLORS.accent, 'transparent');
+  mkChart('chartTrend','line',{
+    labels: d.labels,
+    datasets:[
+      {label:'Sales ($)',data:d.sales,borderColor:COLORS.accent,backgroundColor:fillBlue,
+       borderWidth:2,pointRadius:2,fill:true,yAxisID:'ySales',tension:.35},
+      {label:'Profit ($)',data:d.profit,borderColor:COLORS.green,backgroundColor:'transparent',
+       borderWidth:2,pointRadius:2,fill:false,yAxisID:'yProfit',tension:.35,borderDash:[5,3]},
+    ]
+  },{
+    interaction:{mode:'index',intersect:false},
+    plugins:{legend:{labels:{boxWidth:12}}},
+    scales:{
+      x:{grid:{color:GRID_COLOR},ticks:{color:AXIS_COLOR,maxTicksLimit:18,maxRotation:45}},
+      ySales:{grid:{color:GRID_COLOR},ticks:{color:COLORS.accent,callback:v=>fmt.money(v)},
+              title:{display:true,text:'Sales',color:COLORS.accent},position:'left'},
+      yProfit:{grid:{display:false},ticks:{color:COLORS.green,callback:v=>fmt.money(v)},
+               title:{display:true,text:'Profit',color:COLORS.green},position:'right'},
+    }
+  });
+}
+
+// ── Chart: Category ───────────────────────────────────────────
+function drawCategory(filtered){
+  const d = aggregateGroup(filtered,'category');
+  mkChart('chartCat','bar',{
+    labels:d.labels,
+    datasets:[
+      {label:'Sales ($)',data:d.sales,backgroundColor:COLORS.accent+'CC',borderRadius:5,yAxisID:'y'},
+      {label:'Profit ($)',data:d.profit,backgroundColor:COLORS.green+'CC',borderRadius:5,yAxisID:'y'},
+    ]
+  },{
+    plugins:{legend:{labels:{boxWidth:12}}},
+    scales:{...baseScales('','$'),x:{grid:{color:GRID_COLOR},ticks:{color:AXIS_COLOR}},
+            y:{grid:{color:GRID_COLOR},ticks:{color:AXIS_COLOR,callback:v=>fmt.money(v)}}},
+  });
+}
+
+// ── Chart: Sub-Category (static top 10, sorted by sales) ─────
+function drawSubcat(){
+  const top = RAW.subcat.slice(0,10);
+  const labels  = top.map(r=>r.label);
+  const sales   = top.map(r=>r.sales);
+  const profit  = top.map(r=>r.profit);
+  const bgSales = profit.map((p,i)=> p >= 0 ? COLORS.accent+'CC' : COLORS.pink+'CC');
+  mkChart('chartSubcat','bar',{
+    labels,
+    datasets:[
+      {label:'Sales ($)',  data:sales,  backgroundColor:COLORS.accent+'99',borderRadius:4},
+      {label:'Profit ($)', data:profit, backgroundColor:profit.map(p=>p>=0?COLORS.green+'99':COLORS.pink+'99'),borderRadius:4},
+    ]
+  },{
+    indexAxis:'y',
+    plugins:{legend:{labels:{boxWidth:12}}},
+    scales:{
+      x:{grid:{color:GRID_COLOR},ticks:{color:AXIS_COLOR,callback:v=>fmt.money(v)}},
+      y:{grid:{color:GRID_COLOR},ticks:{color:AXIS_COLOR}},
+    }
+  });
+}
+
+// ── Heatmap: Region × Segment ─────────────────────────────────
+function drawHeatmap(filtered){
+  const regions  = [...new Set(RAW.rs.map(r=>r.Region))].sort();
+  const segments = [...new Set(RAW.rs.map(r=>r.Segment))].sort();
+
+  // Recompute from filtered rows
+  const matrix = {};
+  filtered.forEach(r=>{
+    const k = r.region+'||'+r.segment;
+    if(!matrix[k]) matrix[k]={sales:0,profit:0};
+    matrix[k].sales  += r.sales;
+    matrix[k].profit += r.profit;
+  });
+
+  let html = '<table id="heatmapTable"><thead><tr><th>Region \\ Seg.</th>';
+  segments.forEach(s=>{ html += `<th>${s}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  regions.forEach(reg=>{
+    html += `<tr><th>${reg}</th>`;
+    segments.forEach(seg=>{
+      const k = reg+'||'+seg;
+      const entry = matrix[k];
+      if(entry && entry.sales){
+        const m = entry.profit / entry.sales;
+        const intensity = Math.min(Math.abs(m)/0.4, 1);
+        const bg = m < 0
+          ? `rgba(247,129,102,${0.15+intensity*0.5})`
+          : `rgba(63,185,80,${0.1+intensity*0.55})`;
+        html += `<td style="background:${bg}">${(m*100).toFixed(1)}%</td>`;
+      } else {
+        html += '<td style="color:#555">—</td>';
+      }
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('heatmapWrap').innerHTML = html;
+}
+
+// ── Chart: Top 10 Products (static) ──────────────────────────
+function drawTop10(){
+  const labels = RAW.top10.map(r=>r.label.length>40?r.label.slice(0,38)+'…':r.label);
+  const sales  = RAW.top10.map(r=>r.sales);
+  const profit = RAW.top10.map(r=>r.profit);
+  mkChart('chartTop10','bar',{
+    labels,
+    datasets:[
+      {label:'Sales ($)', data:sales,  backgroundColor:COLORS.accent+'BB',borderRadius:4},
+      {label:'Profit ($)',data:profit, backgroundColor:COLORS.green+'BB',borderRadius:4},
+    ]
+  },{
+    indexAxis:'y',
+    plugins:{legend:{labels:{boxWidth:12}}},
+    scales:{
+      x:{grid:{color:GRID_COLOR},ticks:{color:AXIS_COLOR,callback:v=>fmt.money(v)}},
+      y:{grid:{color:GRID_COLOR},ticks:{color:AXIS_COLOR,font:{size:9}}},
+    }
+  });
+}
+
+// ── Chart: Discount Scatter ───────────────────────────────────
+function drawScatter(){
+  const pts = RAW.scatter.map(r=>({x:r.discount,y:r.margin}));
+  mkChart('chartScatter','scatter',{
+    datasets:[
+      {label:'Order',data:pts,pointRadius:3,pointBackgroundColor:COLORS.accent+'55',
+       pointBorderColor:'transparent'},
+      {label:'Zero margin',data:[{x:0,y:0},{x:0.9,y:0}],type:'line',
+       borderColor:COLORS.pink,borderWidth:1.5,pointRadius:0,fill:false,borderDash:[4,3]},
+    ]
+  },{
+    plugins:{legend:{labels:{filter:i=>i.text!=='Order'}}},
+    scales:{
+      x:{...baseScales('Discount').x,min:0,max:0.85,ticks:{callback:v=>(v*100).toFixed(0)+'%'}},
+      y:{...baseScales('','Margin').y,ticks:{callback:v=>(v*100).toFixed(0)+'%'}},
+    }
+  });
+}
+
+// ── Chart: Ship Mode ──────────────────────────────────────────
+function drawShip(){
+  const d = RAW.ship;
+  mkChart('chartShip','bar',{
+    labels:d.map(r=>r.label),
+    datasets:[
+      {label:'Sales ($)',  data:d.map(r=>r.sales),  backgroundColor:COLORS.purple+'CC',borderRadius:5},
+      {label:'Profit ($)', data:d.map(r=>r.profit), backgroundColor:COLORS.teal+'CC',borderRadius:5},
+    ]
+  },{
+    plugins:{legend:{labels:{boxWidth:12}}},
+    scales:{
+      x:{grid:{color:GRID_COLOR},ticks:{color:AXIS_COLOR}},
+      y:{grid:{color:GRID_COLOR},ticks:{color:AXIS_COLOR,callback:v=>fmt.money(v)}},
+    }
+  });
+}
+
+// ── Main update (called on filter change) ─────────────────────
+function update(){
+  const filtered = applyFilters(RAW.filterable);
+  updateKPIs(filtered, RAW.filterable);
+  drawTrend(filtered);
+  drawCategory(filtered);
+  drawHeatmap(filtered);
+}
+
+// ── Populate filter dropdowns ─────────────────────────────────
+function populateFilters(){
+  const years    = [...new Set(RAW.filterable.map(r=>r.year))].sort();
+  const regions  = [...new Set(RAW.filterable.map(r=>r.region))].sort();
+  const cats     = [...new Set(RAW.filterable.map(r=>r.category))].sort();
+  const segs     = [...new Set(RAW.filterable.map(r=>r.segment))].sort();
+
+  const fill = (id, vals) => {
+    const el = document.getElementById(id);
+    vals.forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; el.appendChild(o); });
+    el.addEventListener('change', update);
+  };
+  fill('fYear',    years);
+  fill('fRegion',  regions);
+  fill('fCategory',cats);
+  fill('fSegment', segs);
+}
+
+// ── Bootstrap ─────────────────────────────────────────────────
+async function init(){
+  try {
+    const resp = await fetch('data.json');
+    RAW = await resp.json();
+
+    // Compute return stats from advanced data (inject via Python later; hardcoded as fallback)
+    RAW.returnsTotal = RAW.returnsTotal || 800;
+    RAW.returnsPct   = RAW.returnsPct   || 7.8;
+
+    populateFilters();
+    update();           // filtered charts
+    drawSubcat();       // static
+    drawTop10();        // static
+    drawScatter();      // static (full scatter from sample)
+    drawShip();         // static
+  } catch(e) {
+    console.error('Failed to load data.json:', e);
+    document.body.innerHTML += `<div style="color:#F78166;padding:24px;text-align:center">
+      <b>Error loading data.json.</b><br>Open this file from the <code>dashboard/</code> directory,
+      or serve it with a local server:<br><code>python -m http.server 8080</code>
+    </div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
