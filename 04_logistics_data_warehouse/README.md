@@ -97,9 +97,13 @@ The interactive dashboard has been fully built in Google Sheets using the Gold L
 - **[View Live Google Sheets Dashboard](https://docs.google.com/spreadsheets/d/1KwzlXp6mJhAZQ7D-3wx9NzWysxX2GLc3MCvLxTdEde0/edit?usp=sharing)**
 
 ![Executive Dashboard Overview](docs/image.png)
-![Dashboard KPIs](docs/dashboard_kpis.png)
-![Dashboard Charts](docs/dashboard_charts.png)
-![Dashboard Analysis](docs/dashboard_analysis.png)
+![Dashboard Part 1](docs/image%20copy.png)
+![Dashboard Part 2](docs/image%20copy%202.png)
+![Dashboard Part 3](docs/image%20copy%203.png)
+![Dashboard Part 4](docs/image%20copy%204.png)
+![Dashboard Part 5](docs/image%20copy%205.png)
+![Dashboard Part 6](docs/image%20copy%206.png)
+![Dashboard Part 7](docs/image%20copy%207.png)
 
 ### Power BI Integration
 This repository contains a full Power BI project (`.pbip` format). The semantic model connects directly to the Gold Layer star schema.
