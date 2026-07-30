@@ -2,6 +2,8 @@
 
 > A complete end-to-end analytics project built on the classic Superstore dataset —
 > from raw XLSX ingestion through interactive dashboard and executive summary.
+>
+> 📊 **Google Sheets Final Project**: [View Spreadsheet](https://docs.google.com/spreadsheets/d/1DzC_F7FBdHq74oyqFFGS8J7uRxDZ4gHD5_RjSmjgjBQ/edit?usp=sharing)
 
 ---
 
