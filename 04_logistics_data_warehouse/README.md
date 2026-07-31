@@ -78,7 +78,7 @@ In logistics, operational data is spread across multiple disconnected systems �
 
 The warehouse follows the **Medallion Architecture** (Bronze → Silver → Gold) — a modern layered pattern that ensures data lineage, traceability, and progressive refinement.
 
-![Data Architecture](docs/data_architecture.png)
+![Data Architecture](docs/images/data_architecture.png)
 
 ### Layer Responsibilities
 
@@ -120,14 +120,14 @@ The interactive dashboard is built in Google Sheets using the Gold Layer data.
 
 **➡️ [View Live Dashboard](https://docs.google.com/spreadsheets/d/1KwzlXp6mJhAZQ7D-3wx9NzWysxX2GLc3MCvLxTdEde0/edit?usp=sharing)**
 
-![Safety Incidents & Delivery Event Split](docs/dashboard_safety_delivery.png)
-![Executive KPI Overview](docs/dashboard_kpi_overview.png)
-![Monthly Revenue & Trips Trend](docs/dashboard_revenue_trips_trend.png)
-![Top 10 Customers & Routes by Revenue](docs/dashboard_top_customers_routes.png)
-![Monthly Profitability](docs/dashboard_monthly_profitability.png)
-![Top 10 Drivers & Fleet Composition](docs/dashboard_drivers_fleet.png)
-![Monthly Fuel Expenditure & Maintenance Cost](docs/dashboard_fuel_maintenance.png)
-![On-Time Delivery Rate & Avg Detention Minutes](docs/dashboard_ontime_detention.png)
+![Safety Incidents & Delivery Event Split](docs/images/dashboard_safety_delivery.png)
+![Executive KPI Overview](docs/images/dashboard_kpi_overview.png)
+![Monthly Revenue & Trips Trend](docs/images/dashboard_revenue_trips_trend.png)
+![Top 10 Customers & Routes by Revenue](docs/images/dashboard_top_customers_routes.png)
+![Monthly Profitability](docs/images/dashboard_monthly_profitability.png)
+![Top 10 Drivers & Fleet Composition](docs/images/dashboard_drivers_fleet.png)
+![Monthly Fuel Expenditure & Maintenance Cost](docs/images/dashboard_fuel_maintenance.png)
+![On-Time Delivery Rate & Avg Detention Minutes](docs/images/dashboard_ontime_detention.png)
 
 ### 📈 Power BI Integration
 
@@ -154,7 +154,7 @@ This repository includes a full Power BI project (`.pbip` format). The semantic 
 
 The diagram below maps all foreign-key relationships across the 14 source tables — showing how drivers, trucks, loads, trips, and customers interconnect.
 
-![Entity Relationships](docs/entity_relationships.png)
+![Entity Relationships](docs/images/entity_relationships.png)
 
 > 💡 For an interactive view of the final Star Schema, open [`schema_documentation.html`](schema_documentation.html) in your browser.
 
@@ -162,7 +162,7 @@ The diagram below maps all foreign-key relationships across the 14 source tables
 
 ## Data Flow
 
-![Data Flow](docs/data_flow.png)
+![Data Flow](docs/images/data_flow.png)
 
 ```
 [Source CSVs — 14 tables]
@@ -254,12 +254,23 @@ logistics-data-warehouse/
 │   └── analytics/                          # Pre-aggregated monthly KPIs
 │
 ├── docs/                                   # Technical documentation & diagrams
-│   ├── data_architecture.png               # Medallion architecture overview
-│   ├── data_flow.png                       # End-to-end pipeline data flow
-│   ├── entity_relationships.png            # Entity-relationship diagram
+│   ├── images/                             # All project images & screenshots
+│   │   ├── data_architecture.png           # Medallion architecture overview
+│   │   ├── data_flow.png                   # End-to-end pipeline data flow
+│   │   ├── entity_relationships.png        # Entity-relationship diagram
+│   │   ├── dashboard_kpi_overview.png      # Executive KPI dashboard screenshot
+│   │   ├── dashboard_revenue_trips_trend.png
+│   │   ├── dashboard_top_customers_routes.png
+│   │   ├── dashboard_monthly_profitability.png
+│   │   ├── dashboard_drivers_fleet.png
+│   │   ├── dashboard_fuel_maintenance.png
+│   │   ├── dashboard_safety_delivery.png
+│   │   └── dashboard_ontime_detention.png
 │   ├── DASHBOARD_PRESENTATION.md           # Dashboard KPIs, insights & recommendations
 │   ├── DATASET_OVERVIEW.md                 # Dataset source, structure & use cases
 │   ├── DATABASE_SCHEMA.txt                 # Table schemas & key relationships
+│   ├── data_catalog.md                     # Full schema data catalog (all layers)
+│   ├── Project_Requirements.md             # Project requirements & success criteria
 │   └── PROJECT_GENERATION_PROMPT.md        # AI generation prompt reference
 │
 ├── scripts/                                # All SQL pipeline scripts
