@@ -120,14 +120,14 @@ The interactive dashboard is built in Google Sheets using the Gold Layer data.
 
 **➡️ [View Live Dashboard](https://docs.google.com/spreadsheets/d/1KwzlXp6mJhAZQ7D-3wx9NzWysxX2GLc3MCvLxTdEde0/edit?usp=sharing)**
 
-![Executive Dashboard Overview](docs/image.png)
-![Dashboard Part 1](docs/image%20copy.png)
-![Dashboard Part 2](docs/image%20copy%202.png)
-![Dashboard Part 3](docs/image%20copy%203.png)
-![Dashboard Part 4](docs/image%20copy%204.png)
-![Dashboard Part 5](docs/image%20copy%205.png)
-![Dashboard Part 6](docs/image%20copy%206.png)
-![Dashboard Part 7](docs/image%20copy%207.png)
+![Safety Incidents & Delivery Event Split](docs/dashboard_safety_delivery.png)
+![Executive KPI Overview](docs/dashboard_kpi_overview.png)
+![Monthly Revenue & Trips Trend](docs/dashboard_revenue_trips_trend.png)
+![Top 10 Customers & Routes by Revenue](docs/dashboard_top_customers_routes.png)
+![Monthly Profitability](docs/dashboard_monthly_profitability.png)
+![Top 10 Drivers & Fleet Composition](docs/dashboard_drivers_fleet.png)
+![Monthly Fuel Expenditure & Maintenance Cost](docs/dashboard_fuel_maintenance.png)
+![On-Time Delivery Rate & Avg Detention Minutes](docs/dashboard_ontime_detention.png)
 
 ### 📈 Power BI Integration
 
